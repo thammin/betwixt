@@ -17,5 +17,5 @@ cd build/
 npm i --production
 cd ..
 
-# build packages for all supported OS versions
-electron-packager ./build/ Betwixt --out ./bin/ --version=0.36.12 --platform=all --arch=all --icon=./gfx/icon
+# build packages for my own OS version only
+electron-packager ./build/ Betwixt --out ./bin/ --electron-version=0.36.12 --icon=./gfx/icon
