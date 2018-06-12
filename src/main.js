@@ -9,6 +9,22 @@ const argv = require('minimist')(process.argv.slice(2));
 const FrontEndConnection = require('./lib/front-end-connection');
 const TrafficInterceptor = require('./lib/traffic-interceptor');
 const RDPMessageFormatter = require('./lib/rdp-message-formatter');
+const store = require('./store.js');
+
+let filterCtx = {
+    urls: store.get().split(/[,\n]/),
+    isDirty: false
+};
+
+function isFilteredUrl(input) {
+    if (filterCtx.isDirty) {
+        filterCtx.urls = store.get().split(/[,\n]/);
+        filterCtx.isDirty = false;
+    }
+    return filterCtx.urls.find(url => {
+        return url && input.includes(url);
+    });
+}
 
 function init(webContents, options) {
     let trafficInterceptor = new TrafficInterceptor(options);
@@ -41,15 +57,19 @@ function init(webContents, options) {
     // this part is responsible for capturing traffic
     trafficInterceptor
         .on('request', (connection) => {
+            if (!isFilteredUrl(connection._request.url)) return;
             frontEndConnection.send('Network.requestWillBeSent', RDPMessageFormatter.requestWillBeSent(connection));
         })
         .on('response-received', (connection) => {
+            if (!isFilteredUrl(connection._request.url)) return;
             frontEndConnection.send('Network.responseReceived', RDPMessageFormatter.responseReceived(connection));
         })
         .on('response-data', (connection, chunk) => {
+            if (!isFilteredUrl(connection._request.url)) return;
             frontEndConnection.send('Network.dataReceived', RDPMessageFormatter.dataReceived(connection, chunk));
         })
         .on('response-finished', (connection) => {
+            if (!isFilteredUrl(connection._request.url)) return;
             frontEndConnection.send('Network.loadingFinished', RDPMessageFormatter.loadingFinished(connection));
         })
         .on('error', (error) => {
@@ -82,7 +102,7 @@ app.on('ready', () => {
         app.quit();
     });
 
-    const menuTemplate = require('./menu')(app, options);
+    const menuTemplate = require('./menu')(app, options, filterCtx);
 
     Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate));
 });
