@@ -19,3 +19,7 @@ cd ..
 
 # build packages for my own OS version only
 electron-packager ./build/ Betwixt --out ./bin/ --electron-version=0.36.12 --icon=./gfx/icon
+
+# pack
+cd ./bin/Betwixt-darwin-x64/
+zip -r ../Betwixt-darwin-x64 *
