@@ -6,10 +6,10 @@ const BrowserWindow = require('browser-window');
 
 function openFilterWindow(filterCtx) {
     let filterWindow = new BrowserWindow({
-        title: 'Betwixt Url Filter',
+        title: 'Url Filter',
         icon: 'gfx/icon.png',
-        width: 400,
-        height: 200
+        width: 600,
+        height: 400
     });
 
     filterWindow.loadURL('file://' + __dirname + '/filter/filter.html');
@@ -18,7 +18,6 @@ function openFilterWindow(filterCtx) {
         filterCtx.isDirty = true;
     });
 }
-
 
 function buildMenu(app, options, filterCtx) {
     const template = [
@@ -66,7 +65,9 @@ function buildMenu(app, options, filterCtx) {
                 {
                     label: 'Root Certificate',
                     click: () => {
-                        shell.showItemInFolder(path.resolve(options.sslCaDir, 'certs', 'ca.pem'));
+                        shell.showItemInFolder(
+                            path.resolve(options.sslCaDir, 'certs', 'ca.pem')
+                        );
                     }
                 },
                 {
